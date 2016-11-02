@@ -29,7 +29,7 @@ function copyElement(element) {
 }
 
 function getRequiredFields(requiredFields, collection) {
-    let newCollection = collection.slice().map(function (element) {
+    var newCollection = collection.slice().map(function (element) {
         return requiredFields.reduce(function (chosen, field) {
             if (field in element) {
                 chosen[field] = element[field];
@@ -43,9 +43,9 @@ function getRequiredFields(requiredFields, collection) {
 }
 
 exports.query = function (collection) {
-    let functions = [].slice.call(arguments, 1).sort(compareForFunction);
-    let copyCollection = copyObject(collection);
-    for (let index = 0; index < functions.length; index++) {
+    var functions = [].slice.call(arguments, 1).sort(compareForFunction);
+    var copyCollection = copyObject(collection);
+    for (var index = 0; index < functions.length; index++) {
         copyCollection = functions[index](copyCollection);
     }
     
@@ -53,7 +53,7 @@ exports.query = function (collection) {
 };
 
 exports.select = function () {
-    let requiredFields = [].slice.call(arguments);
+    var requiredFields = [].slice.call(arguments);
 
     return function select(collection) {
         return collection.slice().map(function (element) {
@@ -78,7 +78,7 @@ exports.filterIn = function (property, values) {
 
 exports.sortBy = function (property, order) {
     return function sortBy(collection) {
-        let newCollection =  collection.slice().sort(function (first, second) {
+        var newCollection =  collection.slice().sort(function (first, second) {
 
             return first[property] <= second[property] ? -1 : 1;
         });
@@ -90,7 +90,7 @@ exports.sortBy = function (property, order) {
 exports.format = function (property, formatter) {
     return function format(collection) {
         return collection.map(function (element) {
-            let newElement = copyElement(element);
+            var newElement = copyElement(element);
             if (property in newElement) {
                 newElement[property] = formatter(newElement[property]);
             }
