@@ -4,85 +4,112 @@
  * Сделано задание на звездочку
  * Реализованы методы or и and
  */
-exports.isStar = true;
+exports.isStar = false;
 
-/**
- * Запрос к коллекции
- * @param {Array} collection
- * @params {...Function} – Функции для запроса
- * @returns {Array}
- */
+let PRIORITY_FUNCTION = ['limit','format', 'select','filterIn','sortBy',];
+
+function compareForFunction(a,b) {
+    if (PRIORITY_FUNCTION.indexOf(a.name) > PRIORITY_FUNCTION.indexOf(b.name))
+        return -1;
+    if (PRIORITY_FUNCTION.indexOf(a.name) < PRIORITY_FUNCTION.indexOf(b.name))
+        return 1;
+    return 0
+}
+
+function copyObject(obj) {
+    obj.map(function (element) {
+        return Object.assign({}, element);
+    });
+
+    return obj;
+}
+
+function copyElement(element) {
+    return Object.assign({}, element);
+}
+
+function getRequiredFields(requiredFields, collection) {
+    let newCollection = collection.slice().map(function (element) {
+        return requiredFields.reduce(function (chosen, field) {
+            if (field in element) {
+                chosen[field] = element[field];
+            }
+
+            return chosen;
+        }, {});
+    });
+
+    return newCollection;
+}
+
 exports.query = function (collection) {
-    return collection;
+    let functions = [].slice.call(arguments, 1).sort(compareForFunction);
+    let copyCollection = copyObject(collection);
+    for (let index = 0; index < functions.length; index++) {
+        copyCollection = functions[index](copyCollection);
+    }
+    
+    return copyCollection;
 };
 
-/**
- * Выбор полей
- * @params {...String}
- */
 exports.select = function () {
-    return;
+    let requiredFields = [].slice.call(arguments);
+
+    return function select(collection) {
+        return collection.slice().map(function (element) {
+            return requiredFields.reduce(function (chosen, field) {
+                if (field in element) {
+                    chosen[field] = element[field];
+                }
+
+                return chosen;
+            }, {});
+        });
+    };
 };
 
-/**
- * Фильтрация поля по массиву значений
- * @param {String} property – Свойство для фильтрации
- * @param {Array} values – Доступные значения
- */
 exports.filterIn = function (property, values) {
-    console.info(property, values);
-
-    return;
+   return function filterIn(collection) {
+        return collection.slice().filter(function (element) {
+            return values.indexOf(element[property]) !== -1;
+        });
+    };
 };
 
-/**
- * Сортировка коллекции по полю
- * @param {String} property – Свойство для фильтрации
- * @param {String} order – Порядок сортировки (asc - по возрастанию; desc – по убыванию)
- */
 exports.sortBy = function (property, order) {
-    console.info(property, order);
+    return function sortBy(collection) {
+        let newCollection =  collection.slice().sort(function (first, second) {
 
-    return;
+            return first[property] <= second[property] ? -1 : 1;
+        });
+
+        return order === 'asc' ? newCollection : newCollection.reverse();
+    };
 };
 
-/**
- * Форматирование поля
- * @param {String} property – Свойство для фильтрации
- * @param {Function} formatter – Функция для форматирования
- */
 exports.format = function (property, formatter) {
-    console.info(property, formatter);
+    return function format(collection) {
+        return collection.map(function (element) {
+            let newElement = copyElement(element);
+            if (property in newElement) {
+                newElement[property] = formatter(newElement[property]);
+            }
 
-    return;
+            return newElement;
+        });
+    };
 };
 
-/**
- * Ограничение количества элементов в коллекции
- * @param {Number} count – Максимальное количество элементов
- */
 exports.limit = function (count) {
-    console.info(count);
-
-    return;
+    return function limit(collection) {
+        return collection.slice(0, count);
+    };
 };
 
 if (exports.isStar) {
-
-    /**
-     * Фильтрация, объединяющая фильтрующие функции
-     * @star
-     * @params {...Function} – Фильтрующие функции
-     */
     exports.or = function () {
         return;
     };
-
-    /**
-     * Фильтрация, пересекающая фильтрующие функции
-     * @star
-     * @params {...Function} – Фильтрующие функции
-     */
     exports.and = function () {
         return;
     };
