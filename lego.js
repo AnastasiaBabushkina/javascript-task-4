@@ -6,7 +6,7 @@
  */
 exports.isStar = false;
 
-let PRIORITY_FUNCTION = ['limit','format', 'select','filterIn','sortBy',];
+var PRIORITY_FUNCTION = ['limit','format', 'select','filterIn','sortBy',];
 
 function compareForFunction(a,b) {
     if (PRIORITY_FUNCTION.indexOf(a.name) > PRIORITY_FUNCTION.indexOf(b.name))
