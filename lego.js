@@ -23,6 +23,7 @@ function copyObject(obj) {
     obj.map(function (element) {
         return Object.assign({}, element);
     });
+
     return obj;
 }
 
@@ -33,11 +34,11 @@ function copyElement(element) {
 exports.query = function (collection) {
     var functions = [].slice.call(arguments, 1).sort(compareForFunction);
     var copyCollection = copyObject(collection);
-    copyCollection = functions.reduce(function (copyCollection, func) {
+    var newCollection = functions.reduce(function (copyCollection, func) {
         return func(copyCollection);
     }, copyCollection);
 
-    return copyCollection;
+    return newCollection;
 };
 
 exports.select = function () {
@@ -81,7 +82,7 @@ exports.sortBy = function (property, order) {
 exports.format = function (property, formatter) {
     return function format(collection) {
         return collection.map(function (element) {
-            var newElement = element;
+            var newElement = copyElement(element);
             if (property in newElement) {
                 newElement[property] = formatter(newElement[property]);
             }
