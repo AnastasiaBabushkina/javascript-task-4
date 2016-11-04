@@ -6,7 +6,7 @@
  */
 exports.isStar = false;
 
-var PRIORITY_FUNCTION = ['limit', 'format', 'select', 'filterIn', 'sortBy'];
+var PRIORITY_FUNCTION = ['format', 'limit', 'select', 'filterIn', 'sortBy'];
 
 function compareForFunction(a, b) {
     if (PRIORITY_FUNCTION.indexOf(a.name) > PRIORITY_FUNCTION.indexOf(b.name)) {
@@ -23,7 +23,6 @@ function copyObject(obj) {
     obj.map(function (element) {
         return Object.assign({}, element);
     });
-
     return obj;
 }
 
@@ -31,26 +30,12 @@ function copyElement(element) {
     return Object.assign({}, element);
 }
 
-function getRequiredFields(requiredFields, collection) {
-    var newCollection = collection.slice().map(function (element) {
-        return requiredFields.reduce(function (chosen, field) {
-            if (field in element) {
-                chosen[field] = element[field];
-            }
-
-            return chosen;
-        }, {});
-    });
-
-    return newCollection;
-}
-
 exports.query = function (collection) {
     var functions = [].slice.call(arguments, 1).sort(compareForFunction);
     var copyCollection = copyObject(collection);
-    for (var index = 0; index < functions.length; index++) {
-        copyCollection = functions[index](copyCollection);
-    }
+    copyCollection = functions.reduce(function (copyCollection, func) {
+        return func(copyCollection);
+    }, copyCollection);
 
     return copyCollection;
 };
@@ -59,7 +44,17 @@ exports.select = function () {
     var requiredFields = [].slice.call(arguments);
 
     return function select(collection) {
-        return getRequiredFields(requiredFields, collection);
+        var newCollection = collection.map(function (element) {
+            return requiredFields.reduce(function (chosen, field) {
+                if (field in element) {
+                    chosen[field] = element[field];
+                }
+
+                return chosen;
+            }, {});
+        });
+
+        return newCollection;
     };
 };
 
@@ -73,19 +68,20 @@ exports.filterIn = function (property, values) {
 
 exports.sortBy = function (property, order) {
     return function sortBy(collection) {
+        order = order === 'asc' ? 1 : -1;
         var newCollection = collection.slice().sort(function (first, second) {
 
-            return first[property] <= second[property] ? -1 : 1;
+            return (first[property] < second[property] ? -1 : 1) * order;
         });
 
-        return order === 'asc' ? newCollection : newCollection.reverse();
+        return newCollection;
     };
 };
 
 exports.format = function (property, formatter) {
     return function format(collection) {
         return collection.map(function (element) {
-            var newElement = copyElement(element);
+            var newElement = element;
             if (property in newElement) {
                 newElement[property] = formatter(newElement[property]);
             }
