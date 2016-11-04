@@ -34,8 +34,8 @@ function copyElement(element) {
 exports.query = function (collection) {
     var functions = [].slice.call(arguments, 1).sort(compareForFunction);
     var copyCollection = copyObject(collection);
-    var newCollection = functions.reduce(function (copyCollection, func) {
-        return func(copyCollection);
+    var newCollection = functions.reduce(function (copyCol, func) {
+        return func(copyCol);
     }, copyCollection);
 
     return newCollection;
