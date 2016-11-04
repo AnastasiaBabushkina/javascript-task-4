@@ -71,6 +71,10 @@ exports.sortBy = function (property, order) {
     return function sortBy(collection) {
         order = order === 'asc' ? 1 : -1;
         var newCollection = collection.slice().sort(function (first, second) {
+            if (first[property] === second[property]) {
+
+                return 0;
+            }
 
             return (first[property] < second[property] ? -1 : 1) * order;
         });
