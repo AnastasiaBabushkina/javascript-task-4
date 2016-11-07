@@ -19,16 +19,23 @@ function compareForFunction(a, b) {
     return 0;
 }
 
-function copyObject(obj) {
-    obj.map(function (element) {
-        return Object.assign({}, element);
+function copyObject(copyCollection) {
+    copyCollection.map(function (element) {
+        return copyElement(element);
     });
 
-    return obj;
+    return copyCollection;
 }
 
 function copyElement(element) {
-    return Object.assign({}, element);
+    var copyElem = {};
+    for (var el in element) {
+        if (el in element) {
+            copyElem[el] = element[el];
+        }
+    }
+
+    return copyElem;
 }
 
 exports.query = function (collection) {
